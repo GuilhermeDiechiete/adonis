@@ -11,7 +11,10 @@ export default class Category extends BaseModel {
   declare userId: number
 
   @column()
-  declare type: 'inputs' | 'outputs' | 'investments'
+  declare category: string
+
+  @column()
+  declare transaction_type: 'inputs' | 'outputs' | 'investments'
 
   @column()
   declare name: string

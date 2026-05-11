@@ -5,7 +5,7 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'users.store': { paramsTuple?: []; params?: {} }
-    'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'users.get': { paramsTuple?: []; params?: {} }
     'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'sessions.store': { paramsTuple?: []; params?: {} }
@@ -17,9 +17,14 @@ export type ScannedRoutes = {
     'payments.show': { paramsTuple?: []; params?: {} }
     'payments.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'transactions.store': { paramsTuple?: []; params?: {} }
+    'transactions.total': { paramsTuple?: []; params?: {} }
+    'transactions.categories': { paramsTuple?: []; params?: {} }
     'transactions.show': { paramsTuple?: []; params?: {} }
     'transactions.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'transactions.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'transactions.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'futures': ParamValue} }
+    'suppliers.store': { paramsTuple?: []; params?: {} }
+    'suppliers.show': { paramsTuple?: []; params?: {} }
+    'suppliers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'users.store': { paramsTuple?: []; params?: {} }
@@ -27,18 +32,25 @@ export type ScannedRoutes = {
     'categories.store': { paramsTuple?: []; params?: {} }
     'payments.store': { paramsTuple?: []; params?: {} }
     'transactions.store': { paramsTuple?: []; params?: {} }
+    'suppliers.store': { paramsTuple?: []; params?: {} }
   }
   GET: {
-    'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'users.get': { paramsTuple?: []; params?: {} }
     'categories.index': { paramsTuple?: []; params?: {} }
     'payments.show': { paramsTuple?: []; params?: {} }
+    'transactions.total': { paramsTuple?: []; params?: {} }
+    'transactions.categories': { paramsTuple?: []; params?: {} }
     'transactions.show': { paramsTuple?: []; params?: {} }
+    'suppliers.show': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
-    'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'users.get': { paramsTuple?: []; params?: {} }
     'categories.index': { paramsTuple?: []; params?: {} }
     'payments.show': { paramsTuple?: []; params?: {} }
+    'transactions.total': { paramsTuple?: []; params?: {} }
+    'transactions.categories': { paramsTuple?: []; params?: {} }
     'transactions.show': { paramsTuple?: []; params?: {} }
+    'suppliers.show': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -48,7 +60,8 @@ export type ScannedRoutes = {
     'sessions.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'categories.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'payments.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'transactions.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'transactions.destroy': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'futures': ParamValue} }
+    'suppliers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PATCH: {
     'transactions.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

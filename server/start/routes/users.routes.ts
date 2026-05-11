@@ -6,7 +6,7 @@ import { middleware } from '#start/kernel'
 router.group(() => {
   router.post('/', [controllers.Users, 'store'])// Requisição POST (cadastro de usuário -> não precisa de autenticação 
   router.group(() => { // Rotas que precisa de autenticação do usuário (params :id)
-    router.get('/:id', [controllers.Users, 'show']) // buscar dados de usuário
+    router.get('/', [controllers.Users, 'get']) // buscar dados de usuário
     router.put('/:id', [controllers.Users, 'update']) // editar dados de usuário
     router.delete('/:id', [controllers.Users, 'destroy']) // deletar usuário
   })

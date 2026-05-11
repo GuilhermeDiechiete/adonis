@@ -46,8 +46,9 @@ export default class PaymentController {
         return response.status(401).json({ message: 'Usuário não autenticado.' })
       }
       const user = auth.user!
+      
       const data = request.only(['type', 'name', 'group'])
-
+console.log(data)
       // VERIFICA SE JÁ EXISTE
       const exists = await Payment
           .query().where('user_id', user.id)

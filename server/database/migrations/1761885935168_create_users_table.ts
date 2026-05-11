@@ -9,6 +9,9 @@ export default class extends BaseSchema {
       table.string('role').notNullable().defaultTo('user')
       table.boolean('is_active').notNullable().defaultTo(true)
 
+      table.enum('client_type', ['PF', 'PJ']).notNullable().defaultTo('PF')
+      table.string('document', 14).notNullable().unique()
+
       table.string('full_name').nullable()
       table.string('username').notNullable().unique()
       table.date('birth').nullable()

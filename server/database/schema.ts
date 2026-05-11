@@ -33,8 +33,10 @@ export class AuthAccessTokenSchema extends BaseModel {
 }
 
 export class CategorySchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'name', 'type', 'updatedAt', 'userId'] as const
+  static $columns = ['category', 'createdAt', 'id', 'name', 'transactionType', 'updatedAt', 'userId'] as const
   $columns = CategorySchema.$columns
+  @column()
+  declare category: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
   @column({ isPrimary: true })
@@ -42,7 +44,7 @@ export class CategorySchema extends BaseModel {
   @column()
   declare name: string
   @column()
-  declare type: string
+  declare transactionType: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
@@ -60,9 +62,92 @@ export class InvestmentSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
-export class OutputSchema extends BaseModel {
-  static $columns = ['amount', 'category', 'createdAt', 'currentInstallment', 'date', 'description', 'groupId', 'id', 'payment', 'status', 'totalInstallment', 'type', 'updatedAt', 'userId'] as const
-  $columns = OutputSchema.$columns
+export class PaymentSchema extends BaseModel {
+  static $columns = ['createdAt', 'group', 'id', 'name', 'transactionType', 'updatedAt', 'userId'] as const
+  $columns = PaymentSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare group: boolean
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare transactionType: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number | null
+}
+
+export class PolicySchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'policy', 'updatedAt', 'userId', 'version'] as const
+  $columns = PolicySchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare policy: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number | null
+  @column()
+  declare version: string
+}
+
+export class SupplierSchema extends BaseModel {
+  static $columns = ['account', 'agency', 'bank', 'city', 'companyName', 'country', 'createdAt', 'document', 'email', 'id', 'number', 'phone', 'pixKey', 'state', 'street', 'tradeName', 'transactionType', 'type', 'updatedAt', 'userId', 'zipCode'] as const
+  $columns = SupplierSchema.$columns
+  @column()
+  declare account: string | null
+  @column()
+  declare agency: string | null
+  @column()
+  declare bank: string | null
+  @column()
+  declare city: string | null
+  @column()
+  declare companyName: string
+  @column()
+  declare country: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare document: string
+  @column()
+  declare email: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare number: string | null
+  @column()
+  declare phone: string | null
+  @column()
+  declare pixKey: string | null
+  @column()
+  declare state: string | null
+  @column()
+  declare street: string | null
+  @column()
+  declare tradeName: string
+  @column()
+  declare transactionType: string
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number | null
+  @column()
+  declare zipCode: string | null
+}
+
+export class TransactionSchema extends BaseModel {
+  static $columns = ['amount', 'category', 'createdAt', 'currentInstallment', 'date', 'description', 'groupId', 'id', 'payment', 'status', 'supplier', 'totalInstallment', 'transactionType', 'updatedAt', 'userId'] as const
+  $columns = TransactionSchema.$columns
   @column()
   declare amount: string
   @column()
@@ -84,28 +169,11 @@ export class OutputSchema extends BaseModel {
   @column()
   declare status: string | null
   @column()
+  declare supplier: string | null
+  @column()
   declare totalInstallment: number
   @column()
-  declare type: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
-  @column()
-  declare userId: number | null
-}
-
-export class PaymentSchema extends BaseModel {
-  static $columns = ['createdAt', 'group', 'id', 'name', 'type', 'updatedAt', 'userId'] as const
-  $columns = PaymentSchema.$columns
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime | null
-  @column()
-  declare group: boolean
-  @column({ isPrimary: true })
-  declare id: number
-  @column()
-  declare name: string
-  @column()
-  declare type: string
+  declare transactionType: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
   @column()
@@ -113,16 +181,20 @@ export class PaymentSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['birth', 'city', 'country', 'createdAt', 'email', 'fullName', 'id', 'isActive', 'number', 'password', 'phone', 'role', 'state', 'street', 'updatedAt', 'username', 'zipCode'] as const
+  static $columns = ['birth', 'city', 'clientType', 'country', 'createdAt', 'document', 'email', 'fullName', 'id', 'isActive', 'number', 'password', 'phone', 'role', 'state', 'street', 'updatedAt', 'username', 'zipCode'] as const
   $columns = UserSchema.$columns
   @column.date()
   declare birth: DateTime | null
   @column()
   declare city: string | null
   @column()
+  declare clientType: string
+  @column()
   declare country: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare document: string
   @column()
   declare email: string
   @column()

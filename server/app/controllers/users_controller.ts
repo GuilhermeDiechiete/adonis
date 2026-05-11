@@ -7,6 +7,8 @@ export default class UsersController {
 async store({ request, response }: HttpContext) {
     try {
       const data = request.only([
+          'client_type',
+          'document',
           'full_name',
           'username',
           'birth',
@@ -16,14 +18,15 @@ async store({ request, response }: HttpContext) {
           'confirm_password',
         ])
 
-      // verificação na criação de senha
       if (data.password !== data.confirm_password) {
+        console.log('senhas')
         return response.status(400).json({ message: 'As senhas não conferem.' })
       }
 
       // verificação de duplicidade de usuário
       const usernameExists = await User.findBy('username', data.username)
       if (usernameExists) {
+        console.log('usuario ja existe')
         return response.status(400).json({ message: 'Nome de usuário já está em uso.' })
       }
 
@@ -31,6 +34,10 @@ async store({ request, response }: HttpContext) {
       const emailExists = await User.findBy('email', data.email)
       if (emailExists) {
         return response.status(400).json({ message: 'Email já está em uso.' })
+      }
+      const documentExists = await User.findBy('document', data.document)
+      if (documentExists) {
+        return response.status(400).json({ message: 'Numero de documento invalido' })
       }
 
       // ajuste para enviar para o DB
@@ -53,28 +60,38 @@ async store({ request, response }: HttpContext) {
   }
 
   /*BUSCAR USUARIO*/
-  async show({ params, auth, response }: HttpContext) {
-    try {
-      const user = auth.user
+/* BUSCAR USUARIO */
+async get({ auth, response }: HttpContext) {
+  try {
+    const user = auth.user
 
-      // Verifica se o usuário está autenticado
-      if (!user) {
-        return response.status(401).json({ message: 'Sem autorização de acesso.' })
-      }
-  
-      // Garante que está acessando seu próprio perfil (segurança)
-      if (user.id !== Number(params.id)) {
-        return response.status(403).json({ message: 'Acesso negado.' })
-      }
-  
-      await User.findByOrFail('id', user.id)
-      return response.status(200).json({ email: user.email })
-  
-    } catch (error) {
-      console.error('ERRO AO BUSCAR USUÁRIO' )
-      return response.status(400).json({ message: 'Erro ao buscar usuário.' })
+    if (!user) {
+      return response.status(401).json({ message: 'Sem autorização de acesso.' })
     }
+
+    const fullUser = await User.findByOrFail('id', user.id)
+
+    const userData = {
+      clientType: fullUser.clientType,
+      document: fullUser.document,
+      fullName: fullUser.full_name,
+      username: fullUser.username,
+      birth: fullUser.birth,
+      phone: fullUser.phone,
+      email: fullUser.email
+    }
+
+    console.log(userData)
+    return response.status(200).json({
+      user: userData,
+      message: 'Busca de usuário realizada.'
+    })
+
+  } catch (error) {
+    console.error('ERRO AO BUSCAR USUÁRIO')
+    return response.status(400).json({ message: 'Erro ao buscar usuário.' })
   }
+}
   
 
   public async update({}: HttpContext) {}

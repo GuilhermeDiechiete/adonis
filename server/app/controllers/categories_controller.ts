@@ -14,17 +14,17 @@ export default class CategoryController {
       const inputs = await Category
         .query()
         .where('user_id', user.id)
-        .where('type', 'inputs')
+        .where('transaction_type', 'inputs')
 
       const outputs = await Category
         .query()
         .where('user_id', user.id)
-        .where('type', 'outputs')
+        .where('transaction_type', 'outputs')
 
       const investments = await Category
         .query()
         .where('user_id', user.id)
-        .where('type', 'investments')
+        .where('transaction_type', 'investments')
 
       return { inputs, outputs, investments, message: 'Busca de categorias realizada.' }
 
@@ -38,11 +38,11 @@ export default class CategoryController {
   async store({ request, auth, response }: HttpContext) {
     try {
       if (!auth.user) {
-          return response.status(401).json({ message: 'Usuário não autenticado.' })
+          return response.status(401).json({ message: 'Usuário não autorizado.' })
         }
       const user = auth.user!
 
-      const data = request.only(['type', 'name'])
+      const data = request.only(['category', 'transaction_type', 'name'])
   
       if(!data.name) response.status(400).json({ message: 'Nome da categoria é obrigatório.'})
         
@@ -50,7 +50,7 @@ export default class CategoryController {
       const exists = await Category
           .query().where('user_id', user.id)
           .where('name', data.name)
-          .where('type', data.type)
+          .where('transaction_type', data.transaction_type)
           .first()
 
       if (exists) {
@@ -64,7 +64,7 @@ export default class CategoryController {
       return response.status(200).json({ message: 'Categoria criada com sucesso.'})
 
     } catch (error) {
-      console.log('ERRO AO CRIAR CATEGORIA:', error)
+      console.log('ERRO AO CRIAR CATEGORIA', error)
       return response.status(500).json({message: 'Erro ao criar categoria.'})
     }
   }

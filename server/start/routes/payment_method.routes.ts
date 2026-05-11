@@ -9,4 +9,4 @@ router.group(() => {
   router.get('/', [controllers.Payments, 'show']) // pegar lista de formas de pagamento
   router.delete('/:id', [controllers.Payments, 'destroy']) // deletar forma de pagamento
 
-}).prefix('/payments_method').middleware(middleware.auth())
+}).prefix('/payments').middleware(middleware.auth())

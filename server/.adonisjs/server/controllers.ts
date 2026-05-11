@@ -10,6 +10,7 @@ export const controllers = {
   Payments: () => import('#controllers/payments_controller'),
   Profile: () => import('#controllers/profile_controller'),
   Sessions: () => import('#controllers/sessions_controller'),
+  Suppliers: () => import('#controllers/suppliers_controller'),
   Transactions: () => import('#controllers/transactions_controller'),
   Users: () => import('#controllers/users_controller'),
 }

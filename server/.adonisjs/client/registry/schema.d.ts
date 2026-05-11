@@ -19,16 +19,16 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['store']>>>
     }
   }
-  'users.show': {
+  'users.get': {
     methods: ["GET","HEAD"]
-    pattern: '/users/:id'
+    pattern: '/users'
     types: {
       body: {}
-      paramsTuple: [ParamValue]
-      params: { id: ParamValue }
+      paramsTuple: []
+      params: {}
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['show']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['show']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['get']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['get']>>>
     }
   }
   'users.update': {
@@ -117,7 +117,7 @@ export interface Registry {
   }
   'payments.store': {
     methods: ["POST"]
-    pattern: '/payments_method'
+    pattern: '/payments'
     types: {
       body: {}
       paramsTuple: []
@@ -129,7 +129,7 @@ export interface Registry {
   }
   'payments.show': {
     methods: ["GET","HEAD"]
-    pattern: '/payments_method'
+    pattern: '/payments'
     types: {
       body: {}
       paramsTuple: []
@@ -141,7 +141,7 @@ export interface Registry {
   }
   'payments.destroy': {
     methods: ["DELETE"]
-    pattern: '/payments_method/:id'
+    pattern: '/payments/:id'
     types: {
       body: {}
       paramsTuple: [ParamValue]
@@ -153,7 +153,7 @@ export interface Registry {
   }
   'transactions.store': {
     methods: ["POST"]
-    pattern: '/inputs'
+    pattern: '/transactions'
     types: {
       body: {}
       paramsTuple: []
@@ -163,9 +163,33 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['store']>>>
     }
   }
+  'transactions.total': {
+    methods: ["GET","HEAD"]
+    pattern: '/transactions/total'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['total']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['total']>>>
+    }
+  }
+  'transactions.categories': {
+    methods: ["GET","HEAD"]
+    pattern: '/transactions/categories'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['categories']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['categories']>>>
+    }
+  }
   'transactions.show': {
     methods: ["GET","HEAD"]
-    pattern: '/inputs'
+    pattern: '/transactions'
     types: {
       body: {}
       paramsTuple: []
@@ -177,7 +201,7 @@ export interface Registry {
   }
   'transactions.update': {
     methods: ["PATCH"]
-    pattern: '/inputs/:id'
+    pattern: '/transactions/:id'
     types: {
       body: {}
       paramsTuple: [ParamValue]
@@ -189,14 +213,50 @@ export interface Registry {
   }
   'transactions.destroy': {
     methods: ["DELETE"]
-    pattern: '/inputs/:id'
+    pattern: '/transactions/:id/:futures'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; futures: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['destroy']>>>
+    }
+  }
+  'suppliers.store': {
+    methods: ["POST"]
+    pattern: '/suppliers'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['store']>>>
+    }
+  }
+  'suppliers.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/suppliers'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['show']>>>
+    }
+  }
+  'suppliers.destroy': {
+    methods: ["DELETE"]
+    pattern: '/suppliers/:id'
     types: {
       body: {}
       paramsTuple: [ParamValue]
       params: { id: ParamValue }
       query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['destroy']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/transactions_controller').default['destroy']>>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['destroy']>>>
     }
   }
 }

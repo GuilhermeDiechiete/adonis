@@ -13,6 +13,7 @@ export default class SessionsController {
 
       return response.status(200).json({
         message: 'Login realizado com sucesso',
+        type: user.clientType,
         token: token.value!.release()
       })
     } catch (error) {
