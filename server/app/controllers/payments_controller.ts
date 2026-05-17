@@ -14,17 +14,17 @@ export default class PaymentController {
       const inputs = await Payment
         .query()
         .where('user_id', user.id)
-        .where('type', 'inputs')
+        .where('transaction_type', 'inputs')
 
       const outputs = await Payment
         .query()
         .where('user_id', user.id)
-        .where('type', 'outputs')
+        .where('transaction_type', 'outputs')
 
       const investments = await Payment
         .query()
         .where('user_id', user.id)
-        .where('type', 'investments')
+        .where('transaction_type', 'investments')
         
       return {
         inputs,
@@ -47,13 +47,13 @@ export default class PaymentController {
       }
       const user = auth.user!
       
-      const data = request.only(['type', 'name', 'group'])
-console.log(data)
+      const data = request.only(['transaction_type', 'name', 'group'])
+
       // VERIFICA SE JÁ EXISTE
       const exists = await Payment
           .query().where('user_id', user.id)
           .where('name', data.name)
-          .where('type', data.type)
+          .where('transaction_type', data.transaction_type)
           .first()
 
       if (exists) {

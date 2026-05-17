@@ -19,6 +19,7 @@ export default class Transactions extends BaseSchema {
       table.date('date').notNullable()
       table.string('description').notNullable()
       table.string('category').notNullable().notNullable()
+      table.string('category_name').notNullable().notNullable()
       table.string('supplier')
       table.string('payment').notNullable().notNullable()
       table.integer('current_installment').notNullable()

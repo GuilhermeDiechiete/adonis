@@ -25,6 +25,7 @@ export type ScannedRoutes = {
     'suppliers.store': { paramsTuple?: []; params?: {} }
     'suppliers.show': { paramsTuple?: []; params?: {} }
     'suppliers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'categories_reports.get_reports': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'users.store': { paramsTuple?: []; params?: {} }
@@ -42,6 +43,7 @@ export type ScannedRoutes = {
     'transactions.categories': { paramsTuple?: []; params?: {} }
     'transactions.show': { paramsTuple?: []; params?: {} }
     'suppliers.show': { paramsTuple?: []; params?: {} }
+    'categories_reports.get_reports': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'users.get': { paramsTuple?: []; params?: {} }
@@ -51,6 +53,7 @@ export type ScannedRoutes = {
     'transactions.categories': { paramsTuple?: []; params?: {} }
     'transactions.show': { paramsTuple?: []; params?: {} }
     'suppliers.show': { paramsTuple?: []; params?: {} }
+    'categories_reports.get_reports': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

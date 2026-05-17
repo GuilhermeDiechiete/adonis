@@ -35,6 +35,7 @@ export default class SupplierController {
 
       const data = request.only([
         'type',
+        'transaction_type',
         'company_name',
         'trade_name',
         'document',

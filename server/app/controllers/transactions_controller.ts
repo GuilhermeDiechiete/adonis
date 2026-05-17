@@ -15,10 +15,11 @@ async store({ auth, request, response }: HttpContext) {
     const user = auth.user!
 
     const data = request.only([
-      'type',
+      'transaction_type',
       'date',
       'description',
       'category',
+      'category_name',
       'supplier',
       'payment',
       'current_installment',
@@ -44,7 +45,7 @@ async store({ auth, request, response }: HttpContext) {
 
     // atualiza a primeira para ter group_id correto
     first.group_id = groupId
-    await first.save()
+    const res = await first.save()
 
     transactions.push(first)
 
@@ -53,12 +54,13 @@ async store({ auth, request, response }: HttpContext) {
       const installmentDate = baseDate.plus({ months: i - atual })
 
       const transaction = await Transaction.create({
-        type: data.type,
+        transaction_type: data.transaction_type,
         group_id: groupId,
         userId: user.id,
         date: installmentDate,
         description: data.description,
         category: data.category,
+        category_name: data.category_name,
         supplier: data.supplier,
         payment: data.payment,
         current_installment: i,
@@ -69,6 +71,7 @@ async store({ auth, request, response }: HttpContext) {
 
       transactions.push(transaction)
     }
+    console.log(res)
     return response.status(200).json({ transactions, message: 'Transação criada com sucesso' })
 
   } catch (error) {
@@ -101,8 +104,8 @@ async show({ request, auth, response }: HttpContext) {
     const transactions = await query.orderBy('date', 'desc')
 
     // Separar listas
-      const outputs = transactions.filter((item) => item.type === 'outputs')
-      const inputs = transactions.filter((item) => item.type === 'inputs')
+      const outputs = transactions.filter((item) => item.transaction_type === 'outputs')
+      const inputs = transactions.filter((item) => item.transaction_type === 'inputs')
 
     return response.status(200).json({ outputs, inputs, message: 'Busca de transações realizada.'})
 
@@ -130,8 +133,8 @@ async total({ request, auth, response }: HttpContext) {
     const transactions = await query
 
     // separa inputs e outputs
-    const inputs = transactions.filter(t => t.type === 'inputs')
-    const outputs = transactions.filter(t => t.type === 'outputs')
+    const inputs = transactions.filter(t => t.transaction_type === 'inputs')
+    const outputs = transactions.filter(t => t.transaction_type === 'outputs')
 
     // 🔥 base fixa de janeiro a dezembro
     const buildEmptyYear = () => {
@@ -205,119 +208,204 @@ async categories({ request, auth, response }: HttpContext) {
     }
 
     const user = auth.user
-    const year = request.input('year')
+    const year = Number(request.input('year'))
 
-    // busca transações
-    const query = Transaction
+    // BUSCAR TRANSAÇÕES POR USUÁRIO E ANO SELECIONADO
+    const transactions = await Transaction
       .query()
       .where('user_id', user.id)
+      .whereRaw(
+        'EXTRACT(YEAR FROM date) = ?',
+        [year]
+      )
 
-    if (year) {
-      query.whereRaw('EXTRACT(YEAR FROM date) = ?', [Number(year)])
-    }
-
-    const transactions = await query
-
-    // busca categorias do usuário
+    // BUSCA AS CATEGORIAS DO USUÁRIO
     const categories = await Category
       .query()
       .where('user_id', user.id)
 
-    // separação principal
-    const result = {
-      inputs: [] as any[],
-      outputs: [] as any[]
+    const categoryMap = new Map()
+
+    for (const category of categories) {
+      categoryMap.set(category.name, category.category)
     }
 
-    // percorre categorias
-    for (const category of categories) {
+    const getCategoryType = (transaction: any) => {
+      return categoryMap.get(transaction.category)
+    }
 
-      // transações da categoria
-      const categoryTransactions = transactions.filter(
-      t => t.category === category.name
+
+    // LISTA DE TRANSAÇÕES DO TIPO INPUTS
+    const inputsTransactions = transactions.filter(
+      transaction => transaction.transaction_type === 'inputs'
     )
 
-      // separa inputs e outputs
-      const inputsTransactions = categoryTransactions.filter(
-        t => t.type === 'inputs'
-      )
+    // LISTA DE TRANSAÇÕES DO TIPO OUTPUTS
+    const outputsTransactions = transactions.filter(
+      transaction => transaction.transaction_type === 'outputs'
+    )
 
-      const outputsTransactions = categoryTransactions.filter(
-        t => t.type === 'outputs'
-      )
+    // SOMA DE INPUTS E OUTPUTS AO ANO
+    const totalInputsByYear = inputsTransactions.reduce(
+      (acc, transaction) => acc + Number(transaction.amount),
+      0
+    )
+    const totalOutputsByYear = outputsTransactions.reduce(
+      (acc, transaction) => acc + Number(transaction.amount),
+      0
+    )
+    // INPUTS FIXED AO ANO
+    const inputsFixedTransactions = inputsTransactions.filter(
+      transaction => getCategoryType(transaction) === 'fixed'
+    )
 
-      // função para montar meses
-      const buildMonths = (items: any[]) => {
+    // INPUTS VARIABLE AO ANO
+    const inputsVariableTransactions = inputsTransactions.filter(
+      transaction => getCategoryType(transaction) === 'variable'
+    )
 
-        const months = []
+  // OUTPUTS FIXED
+    const outputsFixedTransactions = outputsTransactions.filter(
+      transaction => getCategoryType(transaction) === 'fixed'
+    )
 
-        for (let month = 1; month <= 12; month++) {
+  // OUTPUTS VARIABLE
+  const outputsVariableTransactions = outputsTransactions.filter(
+    transaction => getCategoryType(transaction) === 'variable'
+  )
 
-          const monthTransactions = items.filter(t => {
-            const transactionMonth =
-              new Date(t.date).getMonth() + 1
+    // =========================
+    // TOTAL POR CATEGORY NAME
+    // =========================
 
-            return transactionMonth === month
-          })
+    const totalsInputsByCategory: Record<string, number> = {}
+    const totalsOutputsByCategory: Record<string, number> = {}
 
-          const monthTotal = monthTransactions.reduce(
-            (sum, t) => sum + Number(t.amount),
-            0
-          )
+    for (const transaction of transactions) {
 
-          months.push({
-            month,
-            total: monthTotal,
-            transactions: monthTransactions
-          })
+      const categoryName = transaction.category
+
+      // INPUTS
+      if (transaction.transaction_type === 'inputs') {
+
+        if (!totalsInputsByCategory[categoryName]) {
+          totalsInputsByCategory[categoryName] = 0
         }
 
-        return months
+        totalsInputsByCategory[categoryName] += Number(transaction.amount)
       }
 
-      // totals anuais
-      const inputsYearTotal = inputsTransactions.reduce(
-        (sum, t) => sum + Number(t.amount),
-        0
-      )
+      // OUTPUTS
+      if (transaction.transaction_type === 'outputs') {
 
-      const outputsYearTotal = outputsTransactions.reduce(
-        (sum, t) => sum + Number(t.amount),
-        0
-      )
+        if (!totalsOutputsByCategory[categoryName]) {
+          totalsOutputsByCategory[categoryName] = 0
+        }
 
-      if (inputsTransactions.length > 0) {
-        result.inputs.push({
-          categoryId: category.id,
-          categoryName: category.name,
-          months: buildMonths(inputsTransactions),
-          yearTotal: inputsYearTotal
-        })
-      }
-
-      if (outputsTransactions.length > 0) {
-        result.outputs.push({
-          categoryId: category.id,
-          categoryName: category.name,
-          months: buildMonths(outputsTransactions),
-          yearTotal: outputsYearTotal
-        })
+        totalsOutputsByCategory[categoryName] += Number(transaction.amount)
       }
     }
-    console.log( result.inputs, result.outputs)
+// =========================
+// DEBUG TOTALS CATEGORY
+// =========================
 
-    return response.status(200).json({
-      inputs: result.inputs,
-      outputs: result.outputs,
-      message: 'Resumo por categorias carregado'
-    })
+console.log('TOTAL INPUTS POR CATEGORY')
+console.log(totalsInputsByCategory)
+
+console.log('TOTAL OUTPUTS POR CATEGORY')
+console.log(totalsOutputsByCategory)
+
+// =========================
+// DEBUG TRANSACTIONS
+// =========================
+
+console.log('INPUTS FIXED')
+console.log(inputsFixedTransactions)
+
+console.log('INPUTS VARIABLE')
+console.log(inputsVariableTransactions)
+
+console.log('OUTPUTS FIXED')
+console.log(outputsFixedTransactions)
+
+console.log('OUTPUTS VARIABLE')
+console.log(outputsVariableTransactions)
+    // =========================
+    // RETURN
+    // =========================
+
+    return {
+
+      totals: {
+
+        inputs: {
+
+          total: totalInputsByYear,
+
+          fixed: inputsFixedTransactions.reduce(
+            (acc, transaction) => acc + Number(transaction.amount),
+            0
+          ),
+
+          variable: inputsVariableTransactions.reduce(
+            (acc, transaction) => acc + Number(transaction.amount),
+            0
+          )
+        },
+
+        outputs: {
+
+          total: totalOutputsByYear,
+
+          fixed: outputsFixedTransactions.reduce(
+            (acc, transaction) => acc + Number(transaction.amount),
+            0
+          ),
+
+          variable: outputsVariableTransactions.reduce(
+            (acc, transaction) => acc + Number(transaction.amount),
+            0
+          )
+        },
+
+        balance:
+          totalInputsByYear -
+          totalOutputsByYear
+      },
+
+      totalsByCategory: {
+
+        inputs: totalsInputsByCategory,
+
+        outputs: totalsOutputsByCategory
+      },
+
+      transactions: {
+
+        inputs: {
+
+          fixed: inputsFixedTransactions,
+
+          variable: inputsVariableTransactions
+        },
+
+        outputs: {
+
+          fixed: outputsFixedTransactions,
+
+          variable: outputsVariableTransactions
+        }
+      }
+    }
+
+
 
   } catch (error) {
 
     console.log(error)
 
     return response.status(500).json({
-      message: 'Erro ao carregar categorias'
+      message: 'Erro ao carregar resumo financeiro'
     })
   }
 }

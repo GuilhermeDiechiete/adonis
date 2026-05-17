@@ -259,4 +259,16 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/suppliers_controller').default['destroy']>>>
     }
   }
+  'categories_reports.get_reports': {
+    methods: ["GET","HEAD"]
+    pattern: '/reportcategories'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports/CategoriesReports').default['getReports']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports/CategoriesReports').default['getReports']>>>
+    }
+  }
 }

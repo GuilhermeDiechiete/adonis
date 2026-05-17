@@ -146,12 +146,14 @@ export class SupplierSchema extends BaseModel {
 }
 
 export class TransactionSchema extends BaseModel {
-  static $columns = ['amount', 'category', 'createdAt', 'currentInstallment', 'date', 'description', 'groupId', 'id', 'payment', 'status', 'supplier', 'totalInstallment', 'transactionType', 'updatedAt', 'userId'] as const
+  static $columns = ['amount', 'category', 'categoryName', 'createdAt', 'currentInstallment', 'date', 'description', 'groupId', 'id', 'payment', 'status', 'supplier', 'totalInstallment', 'transactionType', 'updatedAt', 'userId'] as const
   $columns = TransactionSchema.$columns
   @column()
   declare amount: string
   @column()
   declare category: string
+  @column()
+  declare categoryName: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
   @column()

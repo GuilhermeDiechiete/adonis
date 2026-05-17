@@ -12,7 +12,7 @@ export default class Transaction extends BaseModel {
   declare userId: number
 
   @column()
-  declare type: 'inputs' | 'outputs'
+  declare transaction_type: 'inputs' | 'outputs'
 
   @column.date()
   declare date: DateTime
@@ -23,6 +23,9 @@ export default class Transaction extends BaseModel {
   @column()
   declare category: string
 
+  @column()
+  declare category_name: string
+  
   @column()
   declare supplier: string
 

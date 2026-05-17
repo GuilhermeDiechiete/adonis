@@ -18,6 +18,9 @@ export default class Supplier extends BaseModel {
   @column()
   declare type: 'PF' | 'PJ'
 
+    @column()
+  declare transaction_type: 'inputs' | 'outputs'
+
   @column()
   declare company_name: string
 

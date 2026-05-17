@@ -35,4 +35,7 @@ export interface ApiDefinition {
     show: typeof routes['suppliers.show']
     destroy: typeof routes['suppliers.destroy']
   }
+  categoriesReports: {
+    getReports: typeof routes['categories_reports.get_reports']
+  }
 }

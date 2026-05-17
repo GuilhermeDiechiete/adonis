@@ -11,7 +11,7 @@ export default class Payments extends BaseModel {
   declare userId: number
 
   @column()
-  declare type: 'input' | 'output' | 'investments'
+  declare transaction_type: 'input' | 'output' | 'investments'
 
   @column()
   declare name : string
