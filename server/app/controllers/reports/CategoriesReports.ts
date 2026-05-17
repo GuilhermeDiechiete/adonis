@@ -1,27 +1,56 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Transaction from '#models/transaction'
 
-type CategorySummary = {
-  category_name: string
-  months: Record<number, number>
-}
-
 export default class ReportsCategoriesController {
 
 async getReports({ request, auth, response }: HttpContext) {
 
   try {
+    // autenticação de usuário
     if (!auth.user) {
       return response.status(401).json({message: 'Usuário não autenticado' })
+    }
+
+        // Totais outputs por mês
+    const outputsByMonth = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0
+    }
+
+    // Totais inputs por mês
+    const inputsByMonth = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0
     }
     const user = auth.user
 
     const year = Number(request.input('year'))
 
+    // Lista total de transações (inputs e outputs) no ano selecionado
     const transactions = await Transaction.query().where('user_id', user.id)
         .whereRaw('EXTRACT(YEAR FROM date) = ?',[year]).orderBy('date', 'asc')
    
-    // Separar listas
+    // Separar listas de inputs e outputs pelo ano selecionado
     const outputs = transactions.filter((item) => item.transaction_type === 'outputs')
     const inputs = transactions.filter((item) => item.transaction_type === 'inputs')
 
@@ -56,78 +85,170 @@ async getReports({ request, auth, response }: HttpContext) {
         return total + Number(item.amount)
     },0)
 
+    // somar transações por mês da lista de outputs
+    outputs.forEach((transaction) => {
+    const month = transaction.date.month
+    outputsByMonth[ month as keyof typeof outputsByMonth
+    ] += Number(transaction.amount)
+    })
+    // somar transações por mês da lista de inputs
+    inputs.forEach((transaction) => {
+    const month = transaction.date.month
+    inputsByMonth[ month as keyof typeof inputsByMonth
+    ] += Number(transaction.amount)
+    })
+ 
+
+
     // ======================================
-    // OUTPUTS FIXED - Somar o total de categorias por mês
-    // ======================================
+// OUTPUTS - categorias resumidas
+// ======================================
 
-    const outputsFixedSummary: CategorySummary[] = []
+const outputsCategoriesSummary: any[] = []
 
-    // Categorias únicas
-    const uniqueCategories = [
-    ...new Set( outputsFixedYear.map((item) => item.category_name ))]
+const uniqueOutputsCategories = [
+  ...new Set(
+    outputs.map((item) => item.category_name)
+  )
+]
 
-    // Loop categorias
-    uniqueCategories.forEach((categoryName) => {
+uniqueOutputsCategories.forEach((categoryName, index) => {
 
-    // Filtra transações categoria
-    const categoryTransactions = outputsFixedYear.filter((item) => item.category_name === categoryName)
+  const categoryTransactions =
+    outputs.filter(
+      (item) =>
+        item.category_name === categoryName
+    )
 
-    // Estrutura meses
-    const months: Record<number, number> = {}
+  const months = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+    9: 0,
+    10: 0,
+    11: 0,
+    12: 0
+  }
 
-    // Inicializa meses
-    for (let month = 1; month <= 12; month++) {
-        months[month] = 0
-    }
-    // Soma valores
-    categoryTransactions.forEach((transaction) => {
+  categoryTransactions.forEach((transaction) => {
 
     const month = transaction.date.month
-    months[month] += Number(transaction.amount)})
 
-    // Adiciona resultado
-    outputsFixedSummary.push({ category_name: categoryName, months })
+    months[
+      month as keyof typeof months
+    ] += Number(transaction.amount)
 
-    })
+  })
 
-    // ======================================
-    // OUTPUTS FIXED MONTHS
-    // ======================================
+  const totalYear =
+    categoryTransactions.reduce(
+      (sum, item) =>
+        sum + Number(item.amount),
+      0
+    )
 
-    const outputsFixedMonths = Array.from(
-    { length: 12 },
-    (_, index) => ({
+  outputsCategoriesSummary.push({
 
-        month: index + 1,
+    id: index + 1,
 
-        transactions:
-        outputsFixedYear
-            .filter(
-            (item) =>
-                item.date.month === index + 1
-            )
-            .map((item) => ({
+    category:
+      categoryTransactions[0].category,
 
-            id: item.id,
+    category_name: categoryName,
 
-            category: item.category,
-            description: item.description,
-            current_installment: item.current_installment,
-            total_installment: item.total_installment,
-            amount: Number(item.amount),
-            date: item.date.toISODate() }))
-    }))
+    months,
+
+    totalYear
+  })
+})
+
+// ======================================
+// INPUTS - categorias resumidas
+// ======================================
+
+const inputsCategoriesSummary: any[] = []
+
+const uniqueInputsCategories = [
+  ...new Set(
+    inputs.map((item) => item.category_name)
+  )
+]
+
+uniqueInputsCategories.forEach((categoryName, index) => {
+
+  const categoryTransactions =
+    inputs.filter(
+      (item) =>
+        item.category_name === categoryName
+    )
+
+  const months = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+    9: 0,
+    10: 0,
+    11: 0,
+    12: 0
+  }
+
+  categoryTransactions.forEach((transaction) => {
+
+    const month = transaction.date.month
+
+    months[
+      month as keyof typeof months
+    ] += Number(transaction.amount)
+
+  })
+
+  const totalYear =
+    categoryTransactions.reduce(
+      (sum, item) =>
+        sum + Number(item.amount),
+      0
+    )
+
+  inputsCategoriesSummary.push({
+
+    id: index + 1,
+
+    category:
+      categoryTransactions[0].category,
+
+    category_name: categoryName,
+
+    months,
+
+    totalYear
+  })
+})
+
+
     return response.status(200).json({ 
-        totalOutputsYear,
         totalInputsYear, 
-
-        totalOutputsFixedYear,
-        totalOutputsVariableYear,
         totalInputsFixedYear,
         totalInputsVariableYear,
 
-        outputsFixedSummary,
-        outputsFixedMonths,
+        totalOutputsYear,
+        totalOutputsFixedYear,
+        totalOutputsVariableYear,
+        
+        outputsByMonth,
+        inputsByMonth,
+
+        outputsCategoriesSummary,
+        inputsCategoriesSummary,
 
         message: 'Relatório carregado com sucesso' })
  
