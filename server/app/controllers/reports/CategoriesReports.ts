@@ -45,6 +45,7 @@ async getReports({ request, auth, response }: HttpContext) {
     const user = auth.user
 
     const year = Number(request.input('year'))
+    const month = String(request.input('month'))
 
     // Lista total de transações (inputs e outputs) no ano selecionado
     const transactions = await Transaction.query().where('user_id', user.id)
@@ -235,6 +236,55 @@ uniqueInputsCategories.forEach((categoryName, index) => {
 })
 
 
+// OUTPUTS - categoria com maior gasto ano e mês
+const topOutputCategoryYear = outputsCategoriesSummary.reduce((prev, current) => {
+  return current.totalYear > prev.totalYear ? current : prev
+})
+
+const topOutputCategoryMonth = outputsCategoriesSummary.reduce((prev, current) => {
+  const currentValue = current.months[month] || 0
+  const prevValue = prev.months[month] || 0
+
+  return currentValue > prevValue ? current : prev
+})
+
+// INPUTS - categoria com maior entrada no ano e mês
+const topInputCategoryYear = inputsCategoriesSummary.reduce((prev, current) => {
+  return current.totalYear > prev.totalYear ? current : prev
+})
+
+const topInputCategoryMonth = inputsCategoriesSummary.reduce((prev, current) => {
+  const currentValue = current.months[month] || 0
+  const prevValue = prev.months[month] || 0
+
+  return currentValue > prevValue ? current : prev
+})
+
+const topCategories = {
+  outputs: {
+    year: {
+      category_name: topOutputCategoryYear.category_name,
+      totalYear: topOutputCategoryYear.totalYear
+    },
+
+    month: {
+      category_name: topOutputCategoryMonth.category_name,
+      totalMonth: topOutputCategoryMonth.months[month] || 0
+    }
+  },
+
+  inputs: {
+    year: {
+      category_name: topInputCategoryYear.category_name,
+      totalYear: topInputCategoryYear.totalYear
+    },
+
+    month: {
+      category_name: topInputCategoryMonth.category_name,
+      totalMonth: topInputCategoryMonth.months[month] || 0
+    }
+  }
+}
     return response.status(200).json({ 
         totalInputsYear, 
         totalInputsFixedYear,
@@ -250,6 +300,8 @@ uniqueInputsCategories.forEach((categoryName, index) => {
         outputsCategoriesSummary,
         inputsCategoriesSummary,
 
+        topCategories,
+      
         message: 'Relatório carregado com sucesso' })
  
   } catch (error) {
